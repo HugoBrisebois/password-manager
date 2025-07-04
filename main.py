@@ -1,12 +1,21 @@
 import tkinter as tk
 from tkinter import ttk
-import hashlib
-import json
-import os
+import sqlite3
+from tkinter import messagebox
+
+username1='example@email.com'
+password1='$your-password%'
 
 
-
-
+# Connect to the Sqlite data base
+conn = sqlite3.connect('password_manager.db')
+c = conn.cursor()
+c.execute('''CREATE TABLE IF NOT EXISTS passwords (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    website TEXT NOT NULL,
+    usernameTEXT NOT NULL,
+    password TEXT NOT NULL)''')
+conn.commit()
 
 # app set up
 root = tk.Tk()
@@ -30,6 +39,7 @@ password = tk.Label(root, text="password")
 
 # login Authentication
 
+
 login = tk.Entry(root, width=65)
 login1 = tk.Entry(root, width=65, show="*")
 
@@ -42,8 +52,9 @@ def handle_login():
     if Username and password:
         print(f"login attempt - Username: {username}")
         # logic for authentication
-        
-        print("login successful")
+        if username == username1 and password == password1:
+            print("login successful")
+            
     else:
         print("please enter both the Username and Password sections")
 
@@ -66,6 +77,21 @@ password.grid(row=7, column=0, sticky='w')
 login1.grid(row=8, column=0, sticky='w')
 login_btn.grid(row=9, column=0)
 
+
+
+# #functions to add and delete functions
+# def add_password():
+#     website = website_entry.get()
+#     username = username_entry.get()
+#     password = password_entry.get()
+    
+#     if website and username and password:
+#         cur.execute("INSERT INTO passwords (website, username, password) VALUES (?,?,?)",
+#                     (website, username, password))
+#         conn.commit()
+#         messagebox.showinfo("Success", "Password added successfully")
+#     else:
+#         messagebox.showwarning("Warning", "Please fill all fields")
 
 # Configure column weight for proper resizing
 root.grid_columnconfigure(0, weight=1)
