@@ -1,60 +1,75 @@
 import tkinter as tk
+from tkinter import messagebox
+import sqlite3
 
-class MultiPageApp(tk.Tk):
+username1 = 'example@email.com'
+password1 = '$your-password%'
+
+# Database setup
+conn = sqlite3.connect('password_manager.db')
+c = conn.cursor()
+c.execute('''CREATE TABLE IF NOT EXISTS passwords (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    website TEXT NOT NULL,
+    usernameTEXT NOT NULL,
+    password TEXT NOT NULL)''')
+conn.commit()
+
+# Main App Class
+class PasswordManagerApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Multi-Page Tkinter App")
-        self.geometry("400x300")
+        self.title("Password Manager")
+        self.geometry("400x600")
+        self.resizable(False, False)
 
-        # Container to hold all pages
-        self.container = tk.Frame(self)
-        self.container.pack(fill="both", expand=True)
+        container = tk.Frame(self)
+        container.pack(fill="both", expand=True)
 
-        # Dictionary to store pages
-        self.pages = {}
+        self.frames = {}
+        for F in (LoginPage, HomePage):
+            frame = F(container, self)
+            self.frames[F] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
 
-        # Initialize pages
-        for Page in (PageOne, PageTwo):
-            page_name = Page.__name__
-            page = Page(parent=self.container, controller=self)
-            self.pages[page_name] = page
-            page.grid(row=0, column=0, sticky="nsew")
+        self.show_frame(LoginPage)
 
-        # Show the first page
-        self.show_page("PageOne")
+    def show_frame(self, page):
+        frame = self.frames[page]
+        frame.tkraise()
 
-    def show_page(self, page_name):
-        """Bring the specified page to the front."""
-        page = self.pages[page_name]
-        page.tkraise()
-
-
-class PageOne(tk.Frame):
+# Login Page
+class LoginPage(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
-        self.controller = controller
+        tk.Label(self, text="Welcome to your password manager").pack(pady=10)
+        tk.Label(self, text="Please login").pack()
 
-        label = tk.Label(self, text="This is Page One", font=("Arial", 16))
-        label.pack(pady=20)
+        tk.Label(self, text="Username").pack()
+        self.username_entry = tk.Entry(self)
+        self.username_entry.pack()
 
-        button = tk.Button(self, text="Go to Page Two",
-                           command=lambda: controller.show_page("PageTwo"))
-        button.pack()
+        tk.Label(self, text="Password").pack()
+        self.password_entry = tk.Entry(self, show="*")
+        self.password_entry.pack()
 
+        tk.Button(self, text="Login", command=lambda: self.login(controller)).pack(pady=10)
 
-class PageTwo(tk.Frame):
+    def login(self, controller):
+        if (self.username_entry.get() == username1 and 
+            self.password_entry.get() == password1):
+            controller.show_frame(HomePage)
+        else:
+            messagebox.showerror("Error", "Invalid credentials")
+
+# Home Page
+class HomePage(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
-        self.controller = controller
+        tk.Label(self, text="Welcome to the Home Page!").pack(pady=20)
+        tk.Button(self, text="Logout", command=lambda: controller.show_frame(LoginPage)).pack()
 
-        label = tk.Label(self, text="This is Page Two", font=("Arial", 16))
-        label.pack(pady=20)
-
-        button = tk.Button(self, text="Go to Page One",
-                           command=lambda: controller.show_page("PageOne"))
-        button.pack()
-
-
+# Run the app
 if __name__ == "__main__":
-    app = MultiPageApp()
+    app = PasswordManagerApp()
     app.mainloop()
