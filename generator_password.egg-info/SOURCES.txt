@@ -1,0 +1,13 @@
+MANIFEST.in
+README.md
+logo.png
+password_manager.db
+setup.py
+generator_password/__init__.py
+generator_password/__main__.py
+generator_password/main.py
+generator_password.egg-info/PKG-INFO
+generator_password.egg-info/SOURCES.txt
+generator_password.egg-info/dependency_links.txt
+generator_password.egg-info/entry_points.txt
+generator_password.egg-info/top_level.txt

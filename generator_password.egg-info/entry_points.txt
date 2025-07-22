@@ -1,0 +1,5 @@
+[console_scripts]
+generator_password = generator_password.main:main
+
+[gui_scripts]
+generator_password-gui = generator_password.__main__:main

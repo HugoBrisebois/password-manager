@@ -1,0 +1,2 @@
+include password_manager.db
+include README.md

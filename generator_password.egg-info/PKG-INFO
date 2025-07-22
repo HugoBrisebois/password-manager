@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: generator_password
+Version: 1.0.0
+Summary: A modern password manager with Tkinter UI and SQLite storage
+Author: Hugo Brisebois
+Dynamic: author
+Dynamic: summary
