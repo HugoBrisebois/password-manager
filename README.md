@@ -35,7 +35,7 @@ python setup.py sdist bdist_wheel
 
 ## Usage
 
-After installation, you can launch the app in several ways:
+After installation, you can launch the app in several ways(make sure to be in directory(Visual Studio Code)):
 
 ### 1. From the command line (cross-platform):
 
