@@ -1,2 +1,1 @@
-# Standard library modules (tkinter, sqlite3, csv) do not need to be listed
-# If you use any external packages, add them here
+tkinter sqlite3 csv
