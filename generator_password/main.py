@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import messagebox, filedialog, ttk
 import sqlite3
 import csv
+import time
+import threading
 
 # Credentials
 username1 = 'example@email.com'
@@ -206,7 +208,10 @@ class PasswordCard(ModernFrame):
             messagebox.showinfo("Copied", "Password copied to clipboard!")
 
 # Main App Class
+
 class PasswordManagerApp(tk.Tk):
+    AUTOLOCK_SECONDS = 120  # 2 minutes
+
     def __init__(self):
         super().__init__()
         self.title("Password Manager")
@@ -214,6 +219,8 @@ class PasswordManagerApp(tk.Tk):
         self.resizable(False, False)
         self.configure(bg=COLORS['secondary'])
         self.user_name = ""
+        self.last_activity = time.time()
+        self.locked = False
 
         # Configure style
         self.configure_styles()
@@ -228,6 +235,44 @@ class PasswordManagerApp(tk.Tk):
             frame.grid(row=0, column=0, sticky="nsew")
 
         self.show_frame(LoginPage)
+
+        # Accessibility: bind Tab for navigation
+        self.bind_all('<Tab>', self.focus_next_widget)
+        self.bind_all('<Shift-Tab>', self.focus_prev_widget)
+
+        # Auto-lock: monitor activity
+        self.bind_all('<Any-KeyPress>', self.reset_activity)
+        self.bind_all('<Any-Button>', self.reset_activity)
+        self.after(1000, self.check_inactivity)
+
+    def focus_next_widget(self, event):
+        event.widget.tk_focusNext().focus()
+        return "break"
+
+    def focus_prev_widget(self, event):
+        event.widget.tk_focusPrev().focus()
+        return "break"
+
+    def reset_activity(self, event=None):
+        self.last_activity = time.time()
+        if self.locked:
+            # If locked, ignore activity until unlocked
+            return
+
+    def check_inactivity(self):
+        if not self.locked and (time.time() - self.last_activity > self.AUTOLOCK_SECONDS):
+            self.lock_app()
+        self.after(1000, self.check_inactivity)
+
+    def lock_app(self):
+        self.locked = True
+        # Show lock screen
+        LockScreen(self)
+
+    def unlock_app(self):
+        self.locked = False
+        self.last_activity = time.time()
+        self.show_frame(HomePage)
 
     def configure_styles(self):
         """Configure ttk styles for modern appearance"""
@@ -563,6 +608,69 @@ class HomePage(ModernFrame):
             card.pack(fill='x', pady=2)
 
 # Run the app
+# Run the app
+
+# Accessibility: Simple tooltip for widgets
+class ToolTip(object):
+    def __init__(self, widget, text):
+        self.widget = widget
+        self.text = text
+        self.tipwindow = None
+        widget.bind("<Enter>", self.show_tip)
+        widget.bind("<Leave>", self.hide_tip)
+
+    def show_tip(self, event=None):
+        if self.tipwindow or not self.text:
+            return
+        x, y, cx, cy = self.widget.bbox("insert")
+        x = x + self.widget.winfo_rootx() + 25
+        y = y + self.widget.winfo_rooty() + 20
+        self.tipwindow = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = tk.Label(tw, text=self.text, justify=tk.LEFT,
+                         background="#ffffe0", relief=tk.SOLID, borderwidth=1,
+                         font=("tahoma", "8", "normal"))
+        label.pack(ipadx=1)
+
+    def hide_tip(self, event=None):
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
+
+# Lock screen popup
+class LockScreen(tk.Toplevel):
+    def __init__(self, app):
+        super().__init__(app)
+        self.app = app
+        self.title("Session Locked")
+        self.geometry("350x200")
+        self.resizable(False, False)
+        self.grab_set()
+        self.focus_force()
+        self.protocol("WM_DELETE_WINDOW", lambda: None)  # Disable close
+        self.configure(bg=COLORS['secondary'])
+
+        ModernLabel(self, "Session Locked", style='header').pack(pady=(30, 10))
+        ModernLabel(self, "Please re-enter your password to unlock.", style='secondary').pack(pady=(0, 20))
+
+        self.pw_entry = ModernEntry(self, placeholder="Password", show="*")
+        self.pw_entry.pack(pady=(0, 10), padx=40, fill='x')
+        self.pw_entry.focus_set()
+        unlock_btn = ModernButton(self, "Unlock", command=self.try_unlock, style='primary')
+        unlock_btn.pack(pady=(0, 10))
+        ToolTip(unlock_btn, "Unlock the app")
+
+        self.bind('<Return>', lambda e: self.try_unlock())
+
+    def try_unlock(self):
+        if self.pw_entry.get() == password1:
+            self.destroy()
+            self.app.unlock_app()
+        else:
+            messagebox.showerror("Unlock Failed", "Incorrect password.")
+
 if __name__ == "__main__":
     app = PasswordManagerApp()
     app.mainloop()
