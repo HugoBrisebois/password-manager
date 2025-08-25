@@ -1,8 +1,1 @@
-<<<<<<< HEAD
-tkinter
-sqlite3
-csv
 
-=======
-tkinter, sqlite3, csv
->>>>>>> bb9e94304de7b5a0dd0a5ffaa7991c8eab014f1f

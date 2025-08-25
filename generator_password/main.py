@@ -1,9 +1,12 @@
 import tkinter as tk
 from tkinter import messagebox, filedialog, ttk
+
 import sqlite3
 import csv
 import time
 import threading
+import sys
+import os
 
 # Credentials
 username1 = 'example@email.com'
@@ -11,7 +14,17 @@ password1 = '$your-password%'
 name = 'User'
 
 # Database setup
-conn = sqlite3.connect('password_manager.db')
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except AttributeError:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+db_path = resource_path('password_manager.db')
+conn = sqlite3.connect(db_path)
 c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS passwords (
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
