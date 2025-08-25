@@ -21,17 +21,7 @@ This app lets you manage your passwords in a modern, organized way, with a GUI i
 
 ## Installation
 
-You can install the app as a Python package:
-
-```sh
-pip install dist/generator_password-1.0.0-py3-none-any.whl
-```
-
-Or build from source:
-
-```sh
-python setup.py sdist bdist_wheel
-```
+download the git repo. then find the file Dist file and the app should be there
 
 
 ## Usage
